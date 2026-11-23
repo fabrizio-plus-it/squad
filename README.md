@@ -140,6 +140,92 @@ O fluxo desejado para um novo projeto será:
 
 Para o futuro, haverá um pacote de runtime/orquestração capaz de criar repositórios com permissões autorizadas, receber tarefas ClickUp, manter estado das execuções e distribuir trabalho a workers. A instalação npm será apenas o mecanismo de distribuição das ferramentas e contratos; não concede permissões a ClickUp, GitHub ou Skyone por si só.
 
+
+## Primeiro projeto-piloto: Zigurate — da tarefa ClickUp à entrega
+
+O **Zigurate** foi escolhido como **primeiro piloto de ponta a ponta do Skyone Agent Squad**. O GESTAO_RH continua sendo a prova técnica inicial das skills Codex Dev e Skyone Engineering, mas o piloto de coordenação do time começa a partir de uma demanda existente e ainda em descoberta.
+
+**Tarefa de origem no ClickUp:** [Zigurate | Automação de entrada de notas fiscais no ERP Mega](https://app.clickup.com/t/1dff4uhdym4).  
+**Escopo comercial conhecido:** acelerar a entrada de notas fiscais no ERP Mega; envolve seleção pelo administrativo, conferências e validações, vinculação de itens a pedidos e tratamento/reprocessamento de exceções. Os detalhes técnicos, as APIs e os acessos devem ser confirmados com o cliente e com a Skyone. O projeto está na etapa de **pré-venda/discovery**: não há neste repositório confirmação de aprovação de escopo final, contrato de implantação, acesso ao Mega ou autorização para operações no ambiente do cliente.
+
+As subtarefas e atas já existentes no ClickUp devem ser lidas antes de levantar novos requisitos, sem criar duplicações. Na reunião de 17/11 ficaram indicadas dependências como vídeo do processo, documentação de API e massa representativa de materiais e serviços; verificar o estado atual dessas entregas no ClickUp e com seus responsáveis.
+
+### Bootstrap manual do novo projeto (executável no pacote v0.1)
+
+Após a aprovação para criação do repositório de implementação, a pessoa operadora ou o orquestrador **futuro** poderá preparar um novo projeto Node.js. Exemplo em PowerShell, usando um diretório local vazio:
+
+```powershell
+# Exemplo: ambiente local com Git, Node.js 20+ e npm disponíveis
+mkdir zigurate-automacao
+cd zigurate-automacao
+npm init -y
+npm install --save-dev github:fabrizio-plus-it/squad
+
+# Revisar antes de copiar arquivos ao projeto
+npx squad-init --dry-run
+
+# Instalar as instruções e skills de agentes no projeto
+npx squad-init
+
+# Opcional: conferir as skills instaladas
+Get-ChildItem .agents/skills -Directory
+```
+
+Se o **repositório remoto já tiver sido criado e clonado**, rode os comandos dentro da pasta clonada; não recrie o repositório nem substitua arquivos existentes. `squad-init` **não** cria um repositório GitHub, não configura credenciais, não cria tarefas ClickUp e não executa agentes. Reinstalações não sobrescrevem skills já existentes, salvo uso explícito de `--force`.
+
+Para que o Codex leia também as instruções complementares, incluir no `AGENTS.md` do projeto:
+
+```md
+Antes de executar demandas do Skyone Agent Squad, leia AGENTS.squad.md e siga as skills aplicáveis em .agents/skills/.
+```
+
+A configuração do Playwright MCP é **local**, separada do npm do projeto. Somente se não estiver configurado:
+
+```powershell
+codex mcp add playwright -- npx -y @playwright/mcp@latest
+codex mcp list
+```
+
+Não versionar senhas, tokens de GitHub/ClickUp/Skyone, cookies de sessão ou dados reais do cliente.
+
+### Fluxo que queremos demonstrar em Zigurate
+
+| Fase | Responsável | Evidência / gate |
+| --- | --- | --- |
+| 1. Intake da demanda existente | Orchestrator | IDs/links das tarefas originais, contexto, lacunas e dependências |
+| 2. Descoberta e requisitos | Requirements Analyst | Requisitos, perguntas e critérios de aceite; **aprovação humana** |
+| 3. Arquitetura | Solution Architect | Contratos OpenAPI/dados, desenho dos fluxos Mega/Skyone, riscos e plano de testes; aprovação quando aplicável |
+| 4. Preparação do repositório | Orchestrator com Codex Dev | GitHub autorizado, `npm install`, `squad-init`, skills e contexto instalados |
+| 5. Implementação em laboratório | Codex Dev + Skyone Engineering | Código e artefatos alinhados ao contrato, somente após aprovação e acesso |
+| 6. Testes e segurança | QA & Security | Testes com dados sintéticos, evidências, erros, idempotência e autorizações |
+| 7. Publicação e aceite | PO + responsáveis autorizados | Aprovação explícita de publicação, validação funcional e registro no ClickUp |
+
+**Estado atual:** somente o bootstrap npm + templates de skills estão escritos no repositório; a execução multiagente integral, provisionamento remoto do GitHub, integração automática com ClickUp e alterações no Skyone continuam **não implementadas**. A skill Skyone é **read-only v0.1**. O piloto deve começar por *discovery e design*, não por criação imediata de tabelas, rotas ou lançamentos fiscais no Mega.
+
+### Primeiro prompt para o Codex no repositório Zigurate
+
+```text
+Leia AGENTS.md e AGENTS.squad.md. Use a skill requirements-analyst
+e, quando aplicável, delivery-orchestrator.
+
+Demanda original: https://app.clickup.com/t/1dff4uhdym4
+Subtarefa técnica: https://app.clickup.com/t/1dff4uhec4j
+
+Comece somente pelo levantamento: consulte o contexto e as fontes
+realmente acessíveis, identifique o que está confirmado e o que está
+pendente, proponha requisitos funcionais/não funcionais, contratos,
+dependências e critérios de aceite para automação de entrada de notas
+fiscais no ERP Mega. Não assuma APIs, formatos ou permissões não
+documentados. Não modifique o Skyone nem o ERP e não crie repositórios
+ou tarefas duplicadas. Apresente o escopo para aprovação humana antes
+de iniciar arquitetura e desenvolvimento.
+```
+
+### Aceite do piloto
+
+O sucesso do **squad** exige rastrear uma demanda Zigurate do ClickUp, obter aprovação do escopo, versionar arquitetura e contratos, realizar handoff entre Codex Dev e Skyone Agent, validar solução com QA e registrar entregas. Isso não significa que a oportunidade comercial do cliente foi contratada ou que um ERP de produção foi alterado.
+
+
 ## Políticas e segurança
 
 - Todos os agentes devem respeitar o `AGENTS.md` preexistente.
